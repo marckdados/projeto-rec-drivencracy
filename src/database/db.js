@@ -1,6 +1,9 @@
 import { MongoClient } from "mongodb";
+import dotenv from "dotenv";
 
-const mongoClient = new MongoClient();
+dotenv.config();
+
+const mongoClient = new MongoClient(process.env.MONGO_URI);
 await mongoClient.connect();
 let db = mongoClient.db("drivencracy");
 
