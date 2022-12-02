@@ -1,7 +1,9 @@
 import pollSchema from "../schema/PollSchema.js";
 import dayjs from "dayjs";
+import db from "../database/db.js";
+import { ObjectId } from "mongodb";
 
-export default function PollValidate(req, res, next) {
+export function PollValidate(req, res, next) {
   const poll = req.body;
 
   if (!poll.title) {
@@ -22,5 +24,27 @@ export default function PollValidate(req, res, next) {
   }
 
   res.locals.polls = poll;
+  next();
+}
+
+export async function PollVerify(req, res, next) {
+  const pollId = req.params.id;
+  if (!pollId.match(/^[0-9a-fA-F]{24}$/)) {
+    return res.sendStatus(404);
+  }
+  try {
+    const pollExists = await db
+      .collection("choices")
+      .find({ pollId: pollId })
+      .toArray();
+    console.log(pollExists);
+    if (!pollExists || pollExists.length === 0) {
+      return res.sendStatus(404);
+    }
+    res.locals.pollIds = pollId;
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(500);
+  }
   next();
 }
