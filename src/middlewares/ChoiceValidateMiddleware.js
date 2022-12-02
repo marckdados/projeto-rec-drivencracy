@@ -37,7 +37,6 @@ export async function ChoiceValidate(req, res, next) {
       return res.sendStatus(403);
     }
     res.locals.choices = choice;
-    res.sendStatus(201);
   } catch (error) {
     console.log(error);
     res.sendStatus(500);
