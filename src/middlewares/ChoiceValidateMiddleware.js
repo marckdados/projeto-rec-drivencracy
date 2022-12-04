@@ -20,7 +20,6 @@ export async function ChoiceValidate(req, res, next) {
     const existsTitle = await db
       .collection("choices")
       .findOne({ title: choice.title });
-    console.log(existsTitle);
     if (existsTitle) {
       return res.sendStatus(409);
     }
@@ -38,6 +37,32 @@ export async function ChoiceValidate(req, res, next) {
       return res.sendStatus(403);
     }
     res.locals.choices = choice;
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(500);
+  }
+  next();
+}
+
+export async function VoteValidate(req, res, next) {
+  const choiceId = req.params.id;
+  const dateNow = dayjs();
+  try {
+    const choiceExists = await db
+      .collection("choices")
+      .findOne({ _id: ObjectId(choiceId) });
+
+    if (!choiceExists) {
+      return res.sendStatus(404);
+    }
+    const poll = await db
+      .collection("polls")
+      .findOne({ _id: ObjectId(choiceExists.pollId) });
+    const datePoll = poll.expireAt;
+    if (dateNow.isAfter(datePoll)) {
+      return res.sendStatus(403);
+    }
+    res.locals.choiceId = choiceExists._id;
   } catch (error) {
     console.log(error);
     res.sendStatus(500);
