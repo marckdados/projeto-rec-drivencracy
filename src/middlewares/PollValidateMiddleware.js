@@ -37,7 +37,6 @@ export async function PollVerify(req, res, next) {
       .collection("choices")
       .find({ pollId: pollId })
       .toArray();
-    console.log(pollExists);
     if (!pollExists || pollExists.length === 0) {
       return res.sendStatus(404);
     }

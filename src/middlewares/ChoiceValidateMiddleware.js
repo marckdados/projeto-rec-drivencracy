@@ -18,8 +18,9 @@ export async function ChoiceValidate(req, res, next) {
 
   try {
     const existsTitle = await db
-      .collection("choice")
+      .collection("choices")
       .findOne({ title: choice.title });
+    console.log(existsTitle);
     if (existsTitle) {
       return res.sendStatus(409);
     }
