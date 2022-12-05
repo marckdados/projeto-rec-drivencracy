@@ -46,21 +46,23 @@ export async function showResult(req, res) {
   try {
     const options = await db.collection("choices").find({ pollId }).toArray();
     const votes = await db.collection("votes").find().toArray();
-    let filttados = [];
+    let filtrados = [];
     const results = [];
 
-    options.map((option) => {
-      filttados = votes.filter(
-        (vote) => vote.choiceId.toString() === option._id.toString()
-      );
+    options.forEach((option) => {
+      filtrados = votes.filter((vote) => {
+        return vote.choiceId.toString() === option._id.toString();
+      });
 
       let soma = 0;
-      for (let i = 0; i <= filttados.length; i++) {
-        soma += 1;
+      for (let i = 0; i < filtrados.length; i++) {
+        soma++;
       }
+      console.log(soma);
       const obj = { title: option.title, votes: soma };
       results.push(obj);
     });
+    console.log(results);
     let result = {};
     let votos = 0;
 
@@ -73,7 +75,7 @@ export async function showResult(req, res) {
     const poll = await db
       .collection("polls")
       .findOne({ _id: ObjectId(pollId) });
-    console.log(poll);
+
     res.status(200).send({ ...poll, result });
   } catch (error) {
     console.log(error);
