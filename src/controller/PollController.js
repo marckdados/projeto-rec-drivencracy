@@ -40,3 +40,43 @@ export async function findPoll(req, res) {
     res.sendStatus(500);
   }
 }
+
+export async function showResult(req, res) {
+  const pollId = res.locals.id;
+  try {
+    const options = await db.collection("choices").find({ pollId }).toArray();
+    const votes = await db.collection("votes").find().toArray();
+    let filttados = [];
+    const results = [];
+
+    options.map((option) => {
+      filttados = votes.filter(
+        (vote) => vote.choiceId.toString() === option._id.toString()
+      );
+
+      let soma = 0;
+      for (let i = 0; i <= filttados.length; i++) {
+        soma += 1;
+      }
+      const obj = { title: option.title, votes: soma };
+      results.push(obj);
+    });
+    let result = {};
+    let votos = 0;
+
+    results.forEach((resu) => {
+      if (resu.votes > votos) {
+        votos = resu.votes;
+        result = resu;
+      }
+    });
+    const poll = await db
+      .collection("polls")
+      .findOne({ _id: ObjectId(pollId) });
+    console.log(poll);
+    res.status(200).send({ ...poll, result });
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(500);
+  }
+}

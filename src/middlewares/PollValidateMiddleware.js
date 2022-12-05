@@ -47,3 +47,23 @@ export async function PollVerify(req, res, next) {
   }
   next();
 }
+
+export async function ResultValidate(req, res, next) {
+  const pollId = req.params.id;
+  if (!pollId.match(/^[0-9a-fA-F]{24}$/)) {
+    return res.sendStatus(404);
+  }
+  try {
+    const pollExists = await db
+      .collection("polls")
+      .findOne({ _id: ObjectId(pollId) });
+    if (!pollExists) {
+      return res.sendStatus(404);
+    }
+    res.locals.id = pollId;
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(500);
+  }
+  next();
+}
